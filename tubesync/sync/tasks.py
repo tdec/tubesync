@@ -167,6 +167,9 @@ def index_source_task(source_id):
     source.save()
     log.info(f'Found {len(videos)} media items for source: {source}')
     for video in videos:
+        if not video:
+            continue
+
         # Create or update each video as a Media object
         key = video.get(source.key_field, None)
         if not key:

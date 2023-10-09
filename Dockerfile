@@ -1,6 +1,6 @@
 FROM debian:bookworm-slim
 
-ARG TARGETPLATFORM
+ARG TARGETPLATFORM="linux/arm64"
 ARG S6_VERSION="3.1.5.0"
 ARG FFMPEG_DATE="autobuild-2023-09-24-14-11"
 ARG FFMPEG_VERSION="112171-g13a3e2a9b4"
@@ -39,7 +39,7 @@ RUN export ARCH=$(case ${TARGETPLATFORM:-linux/amd64} in \
   echo "Building for arch: ${ARCH}|${ARCH44}, downloading S6 from: ${S6_DOWNLOAD}}, expecting S6 SHA256: ${S6_EXPECTED_SHA256}" && \
   set -x && \
   apt-get update && \
-  apt-get -y --no-install-recommends install locales && \
+  apt-get -y --no-install-recommends install locales apt-utils&& \
   echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
   locale-gen en_US.UTF-8 && \
   # Install required distro packages
@@ -78,7 +78,6 @@ WORKDIR /app
 
 # Set up the app
 RUN set -x && \
-  apt-get update && \
   # Install required distro packages
   apt-get -y install nginx-light && \
   apt-get -y --no-install-recommends install \

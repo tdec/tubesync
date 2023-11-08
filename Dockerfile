@@ -39,7 +39,7 @@ RUN export ARCH=$(case ${TARGETPLATFORM:-linux/amd64} in \
   echo "Building for arch: ${ARCH}|${ARCH44}, downloading S6 from: ${S6_DOWNLOAD}}, expecting S6 SHA256: ${S6_EXPECTED_SHA256}" && \
   set -x && \
   apt-get update && \
-  apt-get -y --no-install-recommends install locales apt-utils&& \
+  apt-get -y --no-install-recommends install locales apt-utils && \
   echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
   locale-gen en_US.UTF-8 && \
   # Install required distro packages

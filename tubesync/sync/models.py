@@ -287,6 +287,11 @@ class Source(models.Model):
         help_text=_('If "delete old media" is ticked, the number of days after which '
                     'to automatically delete media')
     )
+    delete_removed_media = models.BooleanField(
+        _('delete removed media'),
+        default=False,
+        help_text=_('Delete media that is no longer on this playlist')
+    )
     source_resolution = models.CharField(
         _('source resolution'),
         max_length=8,
@@ -511,6 +516,7 @@ class Source(models.Model):
             'dd': now.strftime('%d'),
             'source': self.slugname,
             'source_full': self.name,
+            'uploader': 'Some Channel Name',
             'title': 'some-media-title-name',
             'title_full': 'Some Media Title Name',
             'key': 'SoMeUnIqUiD',
@@ -1020,6 +1026,7 @@ class Media(models.Model):
             'acodec': display_format['acodec'],
             'fps': display_format['fps'],
             'hdr': display_format['hdr'],
+            'uploader': self.uploader,
         }
 
     @property

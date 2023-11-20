@@ -112,7 +112,7 @@ def download_media(url, media_format, extension, output_file, info_json,
         'format': media_format,
         'merge_output_format': extension,
         'outtmpl': output_file,
-        'quiet': True,
+#        'quiet': True,
         'progress_hooks': [hook],
         'writeinfojson': info_json,
         'postprocessors': [],
@@ -121,14 +121,24 @@ def download_media(url, media_format, extension, output_file, info_json,
         'subtitleslangs': sub_langs.split(','),
     }
     
-    sbopt = {
-        'key': 'SponsorBlock',
-        'categories': [sponsor_categories]
-    }
+#    sbopt = {
+#        'key': 'SponsorBlock',
+#        'categories': [sponsor_categories]
+#        'key': 'ModifyChapters', 'remove_sponsor_segments': ['sponsor', 'intro', 'outro', 'selfpromo', 'preview', 'filler', 'interaction']
+#        'categories': {'sponsor', 'intro', 'outro', 'selfpromo', 'preview', 'filler', 'interaction'},
+#	'categories': 'default',
+#	'api': 'https://sponsor.ajay.app',
+#    }
+
+    sbopt = { 'api': 'https://sponsor.ajay.app', 'categories': {'interaction', 'intro', 'music_offtopic', 'outro', 'preview', 'selfpromo', 'sponsor'}, 'key': 'SponsorBlock', 'when': 'after_filter' } 
+
+    sbopt2 = { 'force_keyframes': False, 'key': 'ModifyChapters', 'remove_chapters_patterns': [], 'remove_ranges': [], 'remove_sponsor_segments': {'interaction', 'intro', 'music_offtopic', 'outro', 'preview', 'selfpromo', 'sponsor' }, }
+
+
     ffmdopt = {
         'key': 'FFmpegMetadata',
         'add_chapters': True,
-        'add_metadata': True
+        'add_metadata': True,
     }
 
     opts = get_yt_opts()
@@ -138,10 +148,12 @@ def download_media(url, media_format, extension, output_file, info_json,
         ffmdopt["add_metadata"] = True
     if skip_sponsors:
         ytopts['postprocessors'].append(sbopt)
+        ytopts['postprocessors'].append(sbopt2)
     
     ytopts['postprocessors'].append(ffmdopt)
         
     opts.update(ytopts)
+    log.debug(f'YT download options: {ytopts}')
         
     with yt_dlp.YoutubeDL(opts) as y:
         try:

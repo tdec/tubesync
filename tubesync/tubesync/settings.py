@@ -8,7 +8,7 @@ DOWNLOADS_BASE_DIR = BASE_DIR
 
 VERSION = '0.13.1'
 SECRET_KEY = ''
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = []
 
 
@@ -160,6 +160,10 @@ YOUTUBE_DEFAULTS = {
     'ignoreerrors': True,   # Skip on errors (such as unavailable videos in playlists)
     'cachedir': False,      # Disable on-disk caching
     'addmetadata': True,    # Embed metadata during postprocessing where available
+    'postprocessors': [
+        {'key': 'SponsorBlock'},
+        {'key': 'ModifyChapters', 'remove_sponsor_segments': ['sponsor', 'intro', 'outro', 'selfpromo', 'preview', 'filler', 'interaction']}
+     ],
 }
 COOKIES_FILE = CONFIG_BASE_DIR / 'cookies.txt'
 

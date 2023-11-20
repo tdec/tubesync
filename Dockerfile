@@ -1,9 +1,10 @@
 FROM debian:bookworm-slim
 
+# https://github.com/yt-dlp/FFmpeg-Builds/releases/download/autobuild-2023-11-08-14-26/ffmpeg-N-112703-gb82957a66a-linuxarm64-gpl.tar.xz
 ARG TARGETPLATFORM="linux/arm64"
 ARG S6_VERSION="3.1.5.0"
-ARG FFMPEG_DATE="autobuild-2023-09-24-14-11"
-ARG FFMPEG_VERSION="112171-g13a3e2a9b4"
+ARG FFMPEG_DATE="autobuild-2023-11-08-14-26"
+ARG FFMPEG_VERSION="112703-gb82957a66a"
 
 ENV DEBIAN_FRONTEND="noninteractive" \
   HOME="/root" \
@@ -27,8 +28,8 @@ RUN export ARCH=$(case ${TARGETPLATFORM:-linux/amd64} in \
   "linux/arm64")   echo "https://github.com/just-containers/s6-overlay/releases/download/v${S6_VERSION}/s6-overlay-aarch64.tar.xz" ;; \
   *)               echo ""        ;; esac) && \
   export FFMPEG_EXPECTED_SHA256=$(case ${TARGETPLATFORM:-linux/amd64} in \
-  "linux/amd64")   echo "71cd08ed38c33ff2625dcca68d05efda090bdae455625d3bb1e4be4a53bf7c11" ;; \
-  "linux/arm64")   echo "b6765d97f20cecef0121559ee26a2f0dfbac6aef49c48c71eb703271cb3f527b" ;; \
+  "linux/amd64")   echo "821df4f1d6e8dc5ee364c15771bd90e64721f89dc432a77304107c1e9c2cd03d" ;; \
+  "linux/arm64")   echo "15881538211bca9511e187fba479231fc204fd10b6c031882902edbbf3b887bd" ;; \
   *)               echo ""        ;; esac) && \
   export FFMPEG_DOWNLOAD=$(case ${TARGETPLATFORM:-linux/amd64} in \
   "linux/amd64")   echo "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/${FFMPEG_DATE}/ffmpeg-N-${FFMPEG_VERSION}-linux64-gpl.tar.xz"   ;; \
@@ -63,9 +64,6 @@ RUN export ARCH=$(case ${TARGETPLATFORM:-linux/amd64} in \
   rm -rf /tmp/ffmpeg-${ARCH}.tar.xz && \
   apt-get -y autoremove --purge curl binutils xz-utils
 
-# Copy app
-COPY tubesync /app
-COPY tubesync/tubesync/local_settings.py.container /app/tubesync/local_settings.py
 
 # Copy over pip.conf to use piwheels
 COPY pip.conf /etc/pip.conf
@@ -105,8 +103,14 @@ RUN set -x && \
   groupadd app && \
   useradd -M -d /app -s /bin/false -g app app && \
   # Install non-distro packages
-  PIPENV_VERBOSITY=64 pipenv install --system --skip-lock && \
+  PIPENV_VERBOSITY=64 pipenv install --system --skip-lock 
+
+  # Copy app
+  COPY tubesync /app
+  COPY tubesync/tubesync/local_settings.py.container /app/tubesync/local_settings.py
+
   # Make absolutely sure we didn't accidentally bundle a SQLite dev database
+RUN set -x && \
   rm -rf /app/db.sqlite3 && \
   # Run any required app commands
   /usr/bin/python3 /app/manage.py compilescss && \
@@ -146,6 +150,7 @@ RUN set -x && \
 RUN set -x && \
   FFMPEG_VERSION=$(/usr/local/bin/ffmpeg -version | head -n 1 | awk '{ print $3 }') && \
   echo "ffmpeg_version = '${FFMPEG_VERSION}'" >> /app/common/third_party_versions.py
+
 
 # Copy root
 COPY config/root /
